@@ -47,8 +47,11 @@ describe('menyajikan hasil build Vue', () => {
   });
 
   it('tetap mengembalikan JSON untuk API dan 404 untuk metode selain GET', async () => {
+    const health = await fetch(`${staticUrl}/api/health`);
+    expect((await health.json()).success).toBe(true);
+
     const products = await fetch(`${staticUrl}/api/products`);
-    expect((await products.json()).success).toBe(true);
+    expect(products.status).toBe(401);
 
     const unknown = await fetch(`${staticUrl}/api/tidak-ada`);
     expect(unknown.status).toBe(404);

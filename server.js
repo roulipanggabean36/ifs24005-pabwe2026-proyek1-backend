@@ -18,6 +18,6 @@ const dbPath = process.env.DB_PATH || fileURLToPath(new URL('./data/skincare.db'
 const db = openDatabase(dbPath, { seed: process.env.SEED !== 'false' });
 const staticDir = fileURLToPath(new URL('../frontend/dist', import.meta.url));
 
-createApp(db, { staticDir }).listen(PORT, () => {
+createApp(db, { staticDir, authSecret: process.env.AUTH_SECRET || undefined }).listen(PORT, () => {
   console.log(`Server berjalan di http://localhost:${PORT}`);
 });

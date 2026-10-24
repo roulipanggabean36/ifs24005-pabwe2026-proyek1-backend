@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { hashPassword } from '../utils/password.js';
 
 const require = createRequire(import.meta.url);
 
@@ -33,6 +34,19 @@ function wrap(raw) {
 
 const readSql = (name) => readFileSync(new URL(name, import.meta.url), 'utf8');
 
+// Akun uji untuk login. Ganti lewat SEED_USER_EMAIL dan SEED_USER_PASSWORD di .env.
+function seedUser(db) {
+  const { total } = db.prepare('SELECT COUNT(*) AS total FROM users').get();
+  if (total > 0) return;
+  const email = (process.env.SEED_USER_EMAIL || 'admin@skincare.test').trim().toLowerCase();
+  const password = process.env.SEED_USER_PASSWORD || 'Admin123!';
+  db.prepare('INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)').run(
+    'Pengguna Uji',
+    email,
+    hashPassword(password)
+  );
+}
+
 export function openDatabase(path = ':memory:', { seed = true } = {}) {
   if (path !== ':memory:') mkdirSync(dirname(path), { recursive: true });
 
@@ -42,6 +56,7 @@ export function openDatabase(path = ':memory:', { seed = true } = {}) {
 
   const { total } = db.prepare('SELECT COUNT(*) AS total FROM products').get();
   if (seed && total === 0) db.exec(readSql('./seed.sql'));
+  if (seed) seedUser(db);
 
   return db;
 }

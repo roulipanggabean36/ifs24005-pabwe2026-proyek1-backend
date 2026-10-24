@@ -86,3 +86,19 @@ export function validateRoutine(body = {}) {
     notes: body.notes ?? null,
   };
 }
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export function validateLogin(body = {}) {
+  const errors = [];
+  const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+  const password = typeof body.password === 'string' ? body.password : '';
+
+  if (!email) errors.push('email wajib diisi');
+  else if (email.length > 254 || !EMAIL_PATTERN.test(email)) errors.push('email tidak valid');
+  if (!password) errors.push('password wajib diisi');
+  else if (password.length > 128) errors.push('password maksimal 128 karakter');
+
+  if (errors.length) throw new HttpError(400, 'Validasi gagal', errors);
+  return { email, password };
+}

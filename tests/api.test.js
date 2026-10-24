@@ -4,6 +4,7 @@ import { openDatabase } from '../src/db/database.js';
 
 let server;
 let base;
+let cookie = '';
 
 async function start(app) {
   const instance = await new Promise((resolve) => {
@@ -17,7 +18,7 @@ const stop = (instance) => new Promise((resolve) => instance.close(resolve));
 async function call(path, { method = 'GET', body, raw } = {}) {
   const response = await fetch(`${base}${path}`, {
     method,
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(cookie && { Cookie: cookie }) },
     body: raw ?? (body === undefined ? undefined : JSON.stringify(body)),
   });
   return { status: response.status, body: await response.json() };
@@ -38,6 +39,14 @@ beforeAll(async () => {
   const started = await start(createApp(openDatabase(':memory:')));
   server = started.instance;
   base = started.url;
+
+  // Semua endpoint data butuh sesi login, masuk dengan akun seed
+  const login = await fetch(`${base}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: 'admin@skincare.test', password: 'Admin123!' }),
+  });
+  cookie = login.headers.get('set-cookie').split(';')[0];
 });
 
 afterAll(() => stop(server));

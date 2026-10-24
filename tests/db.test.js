@@ -21,6 +21,16 @@ describe('openDatabase', () => {
   it('tidak mengisi dummy data jika seed dimatikan', () => {
     const db = openDatabase(':memory:', { seed: false });
     expect(count(db, 'products')).toBe(0);
+    expect(count(db, 'users')).toBe(0);
+  });
+
+  it('membuat akun uji dengan password ter-hash', () => {
+    const db = openDatabase(':memory:');
+    const user = db.prepare('SELECT * FROM users').get();
+    expect(count(db, 'users')).toBe(1);
+    expect(user.email).toBe('admin@skincare.test');
+    expect(user.password_hash.startsWith('scrypt$')).toBe(true);
+    expect(user.password_hash).not.toContain('Admin123!');
   });
 
   it('get mengembalikan undefined jika baris tidak ada', () => {
