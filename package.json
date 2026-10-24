@@ -1,16 +1,25 @@
 {
-  "name": "backend",
+  "name": "ifs24005-pabwe2026-proyek1-backend",
   "version": "1.0.0",
   "description": "REST API Skincare Routine & Inventory Tracker (Express.js + SQLite)",
   "private": true,
   "type": "module",
   "main": "server.js",
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "cors": "^2.8.6",
     "express": "^5.3.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^5.0.5",
+    "vitest": "^5.0.5"
   }
 }
